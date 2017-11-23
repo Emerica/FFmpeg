@@ -96,6 +96,7 @@ typedef struct MpegTSWrite {
 
     int pmt_start_pid;
     int start_pid;
+    char* mpegts_pids;
     int m2ts_mode;
 
     int reemit_pat_pmt; // backward compatibility
@@ -793,6 +794,10 @@ static int mpegts_init(AVFormatContext *s)
     int i, j;
     const char *service_name;
     const char *provider_name;
+    char *saveptr = NULL;
+    char *saveptrk = NULL;
+    char *token, *tokenkey, *tokenval;
+    int userpids[255] = {-1};
     int *pids;
     int ret;
 
@@ -865,6 +870,16 @@ static int mpegts_init(AVFormatContext *s)
         goto fail;
     }
 
+    token = av_strtok(ts->mpegts_pids, ",", &saveptr);
+    while (token != NULL)
+    {
+      tokenkey = av_strtok(token, "=", &saveptrk);
+      tokenval = av_strtok(NULL, "=", &saveptrk);
+      userpids[atoi(tokenkey)] = atoi(tokenval);
+      token = av_strtok(NULL, ",", &saveptr);
+    }
+
+
     /* assign pids to each stream */
     for (i = 0; i < s->nb_streams; i++) {
         AVProgram *program;
@@ -900,7 +915,13 @@ static int mpegts_init(AVFormatContext *s)
         /* MPEG pid values < 16 are reserved. Applications which set st->id in
          * this range are assigned a calculated pid. */
         if (st->id < 16) {
-            ts_st->pid = ts->start_pid + i;
+            if (userpids[st->index] != -1) {
+              av_log(s, AV_LOG_VERBOSE, "Assigned User Pid %d to stream %d\n",
+                (int)userpids[st->index],st->index);
+              ts_st->pid = (int)userpids[st->index];
+            } else {
+              ts_st->pid = ts->start_pid + i;
+            }
         } else if (st->id < 0x1FFF) {
             ts_st->pid = st->id;
         } else {
@@ -1934,8 +1955,11 @@ static const AVOption options[] = {
       offsetof(MpegTSWrite, pmt_start_pid), AV_OPT_TYPE_INT,
       { .i64 = 0x1000 }, 0x0010, 0x1f00, AV_OPT_FLAG_ENCODING_PARAM },
     { "mpegts_start_pid", "Set the first pid.",
-      offsetof(MpegTSWrite, start_pid), AV_OPT_TYPE_INT,
-      { .i64 = 0x0100 }, 0x0010, 0x0f00, AV_OPT_FLAG_ENCODING_PARAM },
+    offsetof(MpegTSWrite, start_pid), AV_OPT_TYPE_INT,
+    { .i64 = 0x0100 }, 0x0010, 0x0f00, AV_OPT_FLAG_ENCODING_PARAM },
+    { "mpegts_pids", "Set the pids.",
+    offsetof(MpegTSWrite, mpegts_pids), AV_OPT_TYPE_STRING,
+    { 0 }, 0, 0, AV_OPT_FLAG_ENCODING_PARAM },
     { "mpegts_m2ts_mode", "Enable m2ts mode.",
       offsetof(MpegTSWrite, m2ts_mode), AV_OPT_TYPE_BOOL,
       { .i64 = -1 }, -1, 1, AV_OPT_FLAG_ENCODING_PARAM },
