@@ -987,8 +987,8 @@ static int mpegts_init(AVFormatContext *s)
             ts->first_pcr = av_rescale(s->max_delay, PCR_TIME_BASE, AV_TIME_BASE);
     } else {
         /* Arbitrary values, PAT/PMT will also be written on video key frames */
-        ts->sdt_packet_period = 200;
-        ts->pat_packet_period = 40;
+        ts->sdt_packet_period = 500;
+        ts->pat_packet_period = 38;
         if (pcr_st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             int frame_size = av_get_audio_frame_duration2(pcr_st->codecpar, 0);
             if (!frame_size) {
