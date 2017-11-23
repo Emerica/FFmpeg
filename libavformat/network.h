@@ -59,6 +59,7 @@ int ff_neterrno(void);
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
 
 #define ff_neterrno() AVERROR(errno)
@@ -253,6 +254,26 @@ int ff_is_multicast_address(struct sockaddr *addr);
 int ff_listen_bind(int fd, const struct sockaddr *addr,
                    socklen_t addrlen, int timeout,
                    URLContext *h);
+
+/**
+ * Bind to a file descriptor to an address without accepting connections.
+ * @param fd      First argument of bind().
+ * @param addr    Second argument of bind().
+ * @param addrlen Third argument of bind().
+ * @return        0 on success or an AVERROR on failure.
+ */
+int ff_listen(int fd, const struct sockaddr *addr, socklen_t addrlen);
+
+/**
+ * Poll for a single connection on the passed file descriptor.
+ * @param fd      The listening socket file descriptor.
+ * @param timeout Polling timeout in milliseconds.
+ * @param h       URLContext providing interrupt check
+ *                callback and logging context.
+ * @return        A non-blocking file descriptor on success
+ *                or an AVERROR on failure.
+ */
+int ff_accept(int fd, int timeout, URLContext *h);
 
 /**
  * Connect to a file descriptor and poll for result.
