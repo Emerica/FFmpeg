@@ -106,7 +106,7 @@ typedef struct MpegTSWrite {
 #define MPEGTS_FLAG_PAT_PMT_AT_FRAMES           0x04
 #define MPEGTS_FLAG_SYSTEM_B        0x08
 #define MPEGTS_FLAG_DISCONT         0x10
-#define MPEGTS_FLAG_PAT_PMT_AT_FRAMES         0x20
+#define MPEGTS_FLAG_PAT_PMT_AT_KEYFRAMES         0x20
     int flags;
     int copyts;
     int tables_version;
