@@ -407,6 +407,27 @@ static int mpegts_write_pmt(AVFormatContext *s, MpegTSService *service)
                 *q++=0x6a; // AC3 descriptor see A038 DVB SI
                 *q++=1; // 1 byte, all flags sets to 0
                 *q++=0; // omit all fields...
+              } else if (st->codecpar->codec_id==AV_CODEC_ID_AC3){
+                  //DVB AC-3 - 00
+                  *q++=0x6a;
+                  *q++=1;
+                  *q++=0x00;
+                  //registration AC-3
+                  *q++=0x05;
+                  *q++=4;
+                  *q++=0x41;
+                  *q++=0x43;
+                  *q++=0x2d;
+                  *q++=0x33;
+                  //ATSC-AC3
+                  *q++=0x81;
+                  *q++=6;
+                  *q++=0x08;
+                  *q++=0x28;
+                  *q++=0x05;
+                  *q++=0x00;
+                  *q++=0x1f;
+                  *q++=0x01;
             }
             if (st->codecpar->codec_id==AV_CODEC_ID_EAC3 && (ts->flags & MPEGTS_FLAG_SYSTEM_B)) {
                 *q++=0x7a; // EAC3 descriptor see A038 DVB SI
