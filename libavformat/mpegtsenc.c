@@ -227,7 +227,7 @@ static int mpegts_write_section1(MpegTSSection *s, int tid, int id,
 /* we retransmit the SI info at this rate */
 #define SDT_RETRANS_TIME 500
 #define PAT_RETRANS_TIME 100
-#define PCR_RETRANS_TIME 20
+#define PCR_RETRANS_TIME 38
 
 typedef struct MpegTSWriteStream {
     struct MpegTSService *service;
